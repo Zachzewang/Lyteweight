@@ -310,6 +310,7 @@ interface IHevyRecord {
   weight_lbs?: number;
   weight_kg?: number;
   reps: number;
+  rpe?: number | string;
 }
 
 interface IHevyStructExercise {
@@ -323,6 +324,7 @@ interface IHevyStructSet {
   weight_lbs?: number;
   weight_kg?: number;
   reps: number;
+  rpe?: number;
 }
 
 interface IHevyStruct {
@@ -340,6 +342,11 @@ function parseHevyNumber(value: string | number | undefined | null): number | un
   }
   const num = Number(`${value}`);
   return isNaN(num) ? undefined : num;
+}
+
+function parseHevyRpe(value: string | number | undefined | null): number | undefined {
+  const rpe = parseHevyNumber(value);
+  return rpe != null && rpe >= 1 && rpe <= 10 ? rpe : undefined;
 }
 
 // Leave the weight undefined when both columns are blank (bodyweight set) instead of fabricating 0kg.
@@ -394,6 +401,15 @@ function collectHevyWarnings(record: IHevyRecord & { row: number }, warnings: II
         message: `${value} ${unit} looks like an implausible weight`,
       });
     }
+  }
+  const rpe = parseHevyNumber(record.rpe);
+  if (rpe != null && parseHevyRpe(record.rpe) == null) {
+    warnings.push({
+      row: record.row,
+      column: "rpe",
+      value: `${record.rpe}`,
+      message: `RPE ${rpe} is outside 1-10, so it was skipped`,
+    });
   }
   const reps = parseHevyNumber(record.reps);
   if (reps != null && ImportUtils_isSuspiciousReps(reps)) {
@@ -467,6 +483,7 @@ export function ImportFromHevy_convertHevyCsvToHistoryRecords(hevyCsvRaw: string
           weight_lbs: parseHevyNumber(set.weight_lbs),
           weight_kg: parseHevyNumber(set.weight_kg),
           reps: parseHevyNumber(set.reps) ?? 1,
+          rpe: parseHevyRpe(set.rpe),
         })),
       });
     }
@@ -567,6 +584,7 @@ export function ImportFromHevy_convertHevyCsvToHistoryRecords(hevyCsvRaw: string
             timestamp: startTs,
             isUnilateral,
             isCompleted: true,
+            ...(set.rpe != null ? { logRpe: true, completedRpe: set.rpe } : {}),
           };
         }),
         notes: record.exercise_notes,

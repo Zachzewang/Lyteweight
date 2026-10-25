@@ -210,4 +210,28 @@ describe("ImportFromHevy", () => {
     expect(result.historyRecords).to.have.length(1);
     expect(result.warnings.map((w) => w.column)).to.include.members(["weight_lbs", "reps"]);
   });
+
+  it("imports RPE from a kg export with Hevy's full column set", () => {
+    const csv = [
+      "title,start_time,end_time,description,exercise_title,superset_id,exercise_notes,set_index,set_type,weight_kg,reps,distance_km,duration_seconds,rpe",
+      'Squat Day,"13 Mar 2026, 15:22","13 Mar 2026, 16:00",,Squat (Barbell),,,0,warmup,60,5,,,',
+      'Squat Day,"13 Mar 2026, 15:22","13 Mar 2026, 16:00",,Squat (Barbell),,,1,normal,120,3,,,8.5',
+      'Squat Day,"13 Mar 2026, 15:22","13 Mar 2026, 16:00",,Squat (Barbell),,,2,normal,105,5,,,',
+    ].join("\n");
+    const result = ImportFromHevy_convertHevyCsvToHistoryRecords(csv, buildSettings());
+    expect(result.errors).to.eql([]);
+    const squat = result.historyRecords[0].entries[0];
+    expect(squat.warmupSets[0].completedRpe).to.equal(undefined);
+    expect(squat.sets[0].weight).to.eql(Weight_build(120, "kg"));
+    expect(squat.sets[0].completedRpe).to.equal(8.5);
+    expect(squat.sets[0].logRpe).to.equal(true);
+    expect(squat.sets[1].completedRpe).to.equal(undefined);
+  });
+
+  it("skips an RPE outside 1-10 with a warning", () => {
+    const csv = [`${header},rpe`, `${row({ set_index: "1" })},11`].join("\n");
+    const result = ImportFromHevy_convertHevyCsvToHistoryRecords(csv, buildSettings());
+    expect(result.historyRecords[0].entries[0].sets[0].completedRpe).to.equal(undefined);
+    expect(result.warnings.map((w) => w.column)).to.include("rpe");
+  });
 });
