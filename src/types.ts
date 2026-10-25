@@ -1989,6 +1989,42 @@ const _VHearAboutUsMatches: IEquals<v.InferOutput<typeof _VHearAboutUs>, IHearAb
 void _VHearAboutUsMatches;
 export const VHearAboutUs: v.GenericSchema<IHearAboutUs> = _VHearAboutUs;
 
+export const meetLifts = ["squat", "bench", "deadlift"] as const;
+export type IMeetLift = (typeof meetLifts)[number];
+
+export interface IMeetLiftGoal {
+  bestKg: number;
+  targetKg: number;
+  planningMaxKg?: number;
+}
+const _VMeetLiftGoal = v.object({
+  bestKg: v.number(),
+  targetKg: v.number(),
+  planningMaxKg: v.optional(v.number()),
+});
+
+export interface IMeetProfile {
+  federation: string;
+  division: string;
+  sex: "male" | "female";
+  meetDate: string;
+  weightClassKg: number;
+  bodyweightKg?: number;
+  lifts: Record<IMeetLift, IMeetLiftGoal>;
+}
+const _VMeetProfile = v.object({
+  federation: v.string(),
+  division: v.string(),
+  sex: v.picklist(["male", "female"]),
+  meetDate: v.string(),
+  weightClassKg: v.number(),
+  bodyweightKg: v.optional(v.number()),
+  lifts: v.object({ squat: _VMeetLiftGoal, bench: _VMeetLiftGoal, deadlift: _VMeetLiftGoal }),
+});
+const _VMeetProfileMatches: IEquals<v.InferOutput<typeof _VMeetProfile>, IMeetProfile> = true;
+void _VMeetProfileMatches;
+export const VMeetProfile: v.GenericSchema<IMeetProfile> = _VMeetProfile;
+
 interface IStorageRaw {
   history: IHistoryRecord[];
   deletedHistory?: number[];
@@ -2002,6 +2038,7 @@ interface IStorageRaw {
   reviewRequests: number[];
   signupRequests: number[];
   hearAboutUs?: IHearAboutUs;
+  meetProfile?: IMeetProfile;
   helps: string[];
   tempUserId: string;
   email?: string;
@@ -2034,6 +2071,7 @@ const _VStorage = v.object({
   reviewRequests: v.array(v.number()),
   signupRequests: v.array(v.number()),
   hearAboutUs: v.optional(_VHearAboutUs),
+  meetProfile: v.optional(_VMeetProfile),
   helps: v.array(v.string()),
   tempUserId: v.string(),
   email: v.optional(v.string()),

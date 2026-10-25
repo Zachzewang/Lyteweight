@@ -40,6 +40,7 @@ export type IScreenData =
   | { name: "programPreview"; params?: Record<string, never> }
   | { name: "apiKeys"; params?: Record<string, never> }
   | { name: "recentImports"; params?: Record<string, never> }
+  | { name: "meetPrep"; params?: Record<string, never> }
   | { name: "importPreview"; params?: Record<string, never> };
 
 export type IScreen = IScreenData["name"];
@@ -174,6 +175,9 @@ export function Screen_tab(screen: IScreen): ITab {
       return "me";
     }
     case "recentImports": {
+      return "me";
+    }
+    case "meetPrep": {
       return "me";
     }
     case "importPreview": {

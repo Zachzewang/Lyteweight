@@ -21,6 +21,7 @@ import { ScreenSleepNutrition as ScreenSleepNutritionComponent } from "../../com
 import { ScreenExerciseStats as ScreenExerciseStatsComponent } from "../../components/screenExerciseStats";
 import { ScreenRecentImports as ScreenRecentImportsComponent } from "../../components/screenRecentImports";
 import { ScreenImportPreview as ScreenImportPreviewComponent } from "../../components/screenImportPreview";
+import { ScreenMeetPrep as ScreenMeetPrepComponent } from "../../components/screenMeetPrep";
 import { Program_getProgram } from "../../models/program";
 import { Exercise_find, Exercise_toKey } from "../../models/exercise";
 import { Equipment_getEquipmentOfGym } from "../../models/equipment";
@@ -299,6 +300,21 @@ export function NavScreenRecentImports(): JSX.Element {
   return (
     <NavScreenContent>
       <ScreenRecentImportsComponent dispatch={dispatch} importSessions={state.storage.importSessions} />
+    </NavScreenContent>
+  );
+}
+
+export function NavScreenMeetPrep(): JSX.Element {
+  const { state, dispatch } = useAppState();
+  return (
+    <NavScreenContent>
+      <ScreenMeetPrepComponent
+        dispatch={dispatch}
+        meetProfile={state.storage.meetProfile}
+        history={state.storage.history}
+        stats={state.storage.stats}
+        settings={state.storage.settings}
+      />
     </NavScreenContent>
   );
 }

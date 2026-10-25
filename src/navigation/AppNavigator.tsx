@@ -55,6 +55,7 @@ import {
   NavScreenExerciseStats,
   NavScreenApiKeys,
   NavScreenRecentImports,
+  NavScreenMeetPrep,
   NavScreenImportPreview,
 } from "./screens/NavScreenMe";
 import { Footer2Wrapper } from "./screens/NavScreenFooter2";
@@ -276,6 +277,7 @@ function MeStackScreen(): JSX.Element {
       <MeStack.Screen name="exerciseStats" component={NavScreenExerciseStats} />
       <MeStack.Screen name="apiKeys" component={NavScreenApiKeys} />
       <MeStack.Screen name="recentImports" component={NavScreenRecentImports} />
+      <MeStack.Screen name="meetPrep" component={NavScreenMeetPrep} />
       <MeStack.Screen name="importPreview" component={NavScreenImportPreview} />
       <MeStack.Screen name="programs" component={NavScreenPrograms} />
       <MeStack.Screen name="programPreview" component={NavScreenProgramPreview} />

@@ -60,6 +60,7 @@ export type IMeStackParamList = {
   exerciseStats: undefined;
   apiKeys: undefined;
   recentImports: undefined;
+  meetPrep: undefined;
   importPreview: undefined;
   programs: undefined;
   programPreview: undefined;

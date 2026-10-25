@@ -81,6 +81,12 @@ function ScreenSettingsInner(props: IProps): JSX.Element {
           props.dispatch(Thunk_pushScreen("programs"));
         }}
       />
+      <MenuItem
+        shouldShowRightArrow={true}
+        name="Meet Prep"
+        value="Attempts, DOTS, e1RM"
+        onClick={() => props.dispatch(Thunk_pushScreen("meetPrep"))}
+      />
       <GroupHeader name="Account" topPadding={true} />
       <MenuItem
         name="Account"
