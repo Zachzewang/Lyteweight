@@ -41,7 +41,7 @@ export const workoutTourConfig: ITourConfig = {
   steps: [
     {
       id: "howItWorks",
-      title: "How Liftosaur works",
+      title: "How Lyteweight works",
       dino: "dinocoach.svg",
       content: () => (
         <>

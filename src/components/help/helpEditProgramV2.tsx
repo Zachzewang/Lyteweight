@@ -16,7 +16,7 @@ export function HelpEditProgramV2(): JSX.Element {
     <View>
       <Text className="pb-2 text-xl font-semibold">Edit Program</Text>
       <Text className="mb-2 text-sm">
-        In Liftosaur, you need to build a weightlifting program in order to do workouts. This is the screen where you
+        In Lyteweight, you need to build a weightlifting program in order to do workouts. This is the screen where you
         can do it. You can build your weightlifting program and ensure you have proper{" "}
         <Text className="text-sm font-bold">weekly volume per muscle group</Text>, and balance it with the{" "}
         <Text className="text-sm font-bold">time you spend in a gym</Text>. You can build multi-week programs, plan your

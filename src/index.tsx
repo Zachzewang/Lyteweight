@@ -19,8 +19,23 @@ import { Service } from "./api/service";
 import { UrlUtils_build } from "./utils/url";
 import { AsyncQueue } from "./utils/asyncQueue";
 import { DeviceId_get } from "./utils/deviceId";
+import { Lyteweight_isLocalOnly } from "./utils/lyteweight";
 
 IndexedDBUtils_initializeForSafari();
+
+declare let __API_HOST__: string;
+if (Lyteweight_isLocalOnly()) {
+  // There's no backend in local-only mode. Fail API calls immediately the same way they fail when the device is
+  // offline (which the app already handles gracefully), instead of waiting for a DNS lookup to fail.
+  const originalFetch = window.fetch.bind(window);
+  window.fetch = (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+    const requestUrl = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+    if (requestUrl.startsWith(__API_HOST__)) {
+      return Promise.reject(new TypeError("Failed to fetch"));
+    }
+    return originalFetch(input, init);
+  };
+}
 
 if ("serviceWorker" in navigator && (typeof window === "undefined" || window.location.protocol.startsWith("http"))) {
   navigator.serviceWorker.register("/webpushr-sw.js");

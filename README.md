@@ -1,4 +1,69 @@
-# 🏋 Liftosaur: Open-source powerful weight lifting tracker PWA for coders.
+# Lyteweight
+
+A powerlifting training tracker, built as an installable web app (PWA) for iPhone.
+
+> **Lyteweight is a modified fork of [Liftosaur](https://github.com/astashov/liftosaur)** by Anton Astashov,
+> licensed under the [AGPL-3.0](LICENSE). All credit for the original app, including the Liftoscript
+> language and the program engine, goes to the Liftosaur project. See [NOTICE](NOTICE) for what this fork
+> changes.
+
+## What's different from Liftosaur
+
+- **Local-only.** There's no backend. Everything is stored on your device (IndexedDB), and the app never
+  contacts Liftosaur's servers. Back up with Settings → *Export data to JSON file*.
+- **No analytics or error tracking.**
+- **Offline PWA.** Open the site in Safari, tap Share → *Add to Home Screen*, and it runs offline.
+- **Powerlifting features** are planned. See the project's issues and roadmap.
+
+## Running locally
+
+Requires Node 22 (see `.nvmrc`).
+
+```bash
+npm install
+npm start          # dev server: http://localhost:8080/app/
+npm run build:pwa  # production build into ./dist (static files, ready to host anywhere)
+```
+
+You don't need to comment out the `devServer` block as upstream's README says. In local-only mode it no
+longer proxies to the Liftosaur API.
+
+To point the app at your own backend instead, set `LYTEWEIGHT_API_HOST=https://your-api.example.com`
+when building.
+
+## Hosting (Cloudflare Pages)
+
+Connect this repo in Cloudflare Pages with:
+
+| Setting          | Value               |
+| ---------------- | ------------------- |
+| Build command    | `npm run build:pwa` |
+| Output directory | `dist`              |
+| Env variable     | `NODE_VERSION=22`   |
+
+`_redirects` sends `/` to `/app/`, and `_headers` makes sure new deploys reach installed apps.
+
+## Where things live
+
+| Area                          | Location                                                                          |
+| ----------------------------- | --------------------------------------------------------------------------------- |
+| App entry (web)               | `src/index.tsx`, `src/index.html`, `src/components/app.tsx`                         |
+| State, actions, side effects  | `src/ducks/` (`reducer.ts`, `thunks.ts`)                                           |
+| Programs (model)              | `src/models/program.ts`, `src/types.ts`                                            |
+| Program text format (planner) | `src/pages/planner/` (`plannerExercise.grammar`, evaluators, `models/`)            |
+| Liftoscript                   | `liftoscript.grammar`, `src/liftoscript*.ts`, `src/parser.ts`                       |
+| Built-in programs             | `programs/builtin/`                                                                |
+| Workout logging               | `src/models/progress.ts`, `src/components/workout*.tsx`, `src/models/history.ts`   |
+| RPE table / e1RM              | `src/models/weight.ts` (`Weight_rpeMultiplier`, `Weight_rpePct`)                    |
+| Importers (Hevy, etc.)        | `src/utils/importFromHevy.ts` and siblings                                        |
+| Service worker                | `src/webpushr-sw.ts`                                                               |
+| Local-only switches           | `src/utils/lyteweight.ts`                                                          |
+
+---
+
+## Original Liftosaur README
+
+### 🏋 Liftosaur: Open-source powerful weight lifting tracker PWA for coders.
 
 * Link: https://www.liftosaur.com
 * **[Features roadmap](https://github.com/astashov/liftosaur/discussions)**

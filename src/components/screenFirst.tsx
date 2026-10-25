@@ -1,4 +1,5 @@
 import { JSX, ReactNode, useEffect, useRef } from "react";
+import { Lyteweight_isLocalOnly } from "../utils/lyteweight";
 import { View, Image, Platform, Animated, Easing } from "react-native";
 import { Text } from "./primitives/text";
 import { Thunk_pushScreen } from "../ducks/thunks";
@@ -112,16 +113,18 @@ export function ScreenFirst(props: IProps): JSX.Element {
             <AnimatedArrow />
           </View>
         </Button>
-        <View className="pb-4 mt-2">
-          <Button
-            className="w-full ls-onboarding-have-account"
-            name="see-how-it-works"
-            kind="transparent-purple"
-            onClick={() => navigateToModal("accountModal")}
-          >
-            I have an account
-          </Button>
-        </View>
+        {!Lyteweight_isLocalOnly() && (
+          <View className="pb-4 mt-2">
+            <Button
+              className="w-full ls-onboarding-have-account"
+              name="see-how-it-works"
+              kind="transparent-purple"
+              onClick={() => navigateToModal("accountModal")}
+            >
+              I have an account
+            </Button>
+          </View>
+        )}
       </View>
     </View>
   );

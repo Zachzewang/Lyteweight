@@ -1,0 +1,27 @@
+Lyteweight
+==========
+
+Lyteweight is a modified version of Liftosaur.
+
+  Liftosaur - https://github.com/astashov/liftosaur
+  Copyright (c) Anton Astashov
+
+Both Liftosaur and Lyteweight are licensed under the GNU Affero General Public License, version 3
+(AGPL-3.0). See the LICENSE file for the full text. As required by the AGPL, the complete source code of
+Lyteweight, including all modifications, is available at:
+
+  https://github.com/Zachzewang/Lyteweight
+
+Modifications made in this fork (see the git history for full details):
+
+  - Rebranded the web app (name, logo, icons, PWA manifest, page metadata) from Liftosaur to Lyteweight.
+  - Added a "local-only" build mode: the app never contacts Liftosaur's servers, data stays in the browser's
+    storage, cloud sign-in/sync is hidden, and features that upstream gates behind a subscription are
+    unlocked.
+  - Removed third-party analytics and error reporting (Google Analytics, Rollbar, consent banner) and the
+    Sign in with Apple script from the app page.
+  - Rewrote the service worker so the app installs and works offline as an iOS/Android home-screen PWA.
+  - Replaced the hosting configuration (_redirects, _headers) for static hosting on Cloudflare Pages, and added
+    the `npm run build:pwa` script.
+
+"Liftosaur" is the name of the original project and is used here only to credit it.

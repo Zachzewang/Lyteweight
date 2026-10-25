@@ -1,3 +1,4 @@
+import { Lyteweight_isLocalOnly } from "./lyteweight";
 import { IEventPayload, Service } from "../api/service";
 import { WatchHost_isAvailable, WatchHost_send } from "./watchHost";
 import { AppAttribution_get } from "./appAttribution";
@@ -51,7 +52,7 @@ export function lg(
     (typeof globalThis !== "undefined" ? (globalThis as { tempUserId?: string }).tempUserId : undefined) ??
     (typeof window !== "undefined" ? window.tempUserId : undefined);
 
-  if (tempUserId == null) {
+  if (tempUserId == null || Lyteweight_isLocalOnly()) {
     return;
   }
 

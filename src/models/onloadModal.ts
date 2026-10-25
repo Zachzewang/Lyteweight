@@ -1,3 +1,4 @@
+import { Lyteweight_isLocalOnly } from "../utils/lyteweight";
 import { IState } from "./state";
 import { WhatsNew_doesHaveNewUpdates } from "./whatsnew";
 
@@ -10,7 +11,7 @@ export function OnloadModal_shouldShowWhatsNew(state: IState): boolean {
 }
 
 export function OnloadModal_shouldShowHearAboutUs(state: IState): boolean {
-  if (state.storage.currentProgramId == null) {
+  if (Lyteweight_isLocalOnly() || state.storage.currentProgramId == null) {
     return false;
   }
   const hearAboutUs = state.storage.hearAboutUs;

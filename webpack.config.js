@@ -32,6 +32,66 @@ const local = `https://${localdomain}.liftosaur.com:${localport}/`;
 
 const isDev = process.env.NODE_ENV !== "production";
 
+// Lyteweight: by default the app runs fully local (data stays in the browser's IndexedDB) and never talks
+// to Liftosaur's servers. Set LYTEWEIGHT_API_HOST to point at your own backend if you ever run one.
+const lyteweightApiHost = process.env.LYTEWEIGHT_API_HOST;
+const isLocalOnly = !lyteweightApiHost;
+// Resolved at runtime, so the same build works on any domain (Cloudflare Pages preview URLs, custom domain, localhost).
+const runtimeOrigin = `(typeof self !== "undefined" && self.location ? self.location.origin : "")`;
+const withSourceMaps = !process.env.NO_SOURCEMAPS;
+
+// Emits precache-manifest.json listing every JS/CSS asset of the app entry, so the service worker can make
+// the whole app (including lazily loaded chunks) available offline right after installation.
+const precacheManifestPlugin = {
+  apply(compiler) {
+    compiler.hooks.thisCompilation.tap("PrecacheManifestPlugin", (compilation) => {
+      compilation.hooks.processAssets.tap(
+        { name: "PrecacheManifestPlugin", stage: Compilation.PROCESS_ASSETS_STAGE_REPORT },
+        () => {
+          const appFiles = new Set();
+          const entry = compilation.entrypoints.get("app");
+          for (const chunk of entry ? entry.chunks : []) {
+            for (const file of chunk.files) {
+              appFiles.add(file);
+            }
+            for (const asyncChunk of chunk.getAllAsyncChunks()) {
+              for (const file of asyncChunk.files) {
+                appFiles.add(file);
+              }
+            }
+          }
+          // Built-in program definitions are small (~1MB total), so cache all of them for picking programs offline.
+          // They're generated into ./programdata by `npm run build:programs` and copied into dist as-is.
+          const programDataDir = path.join(__dirname, "programdata");
+          if (fs.existsSync(programDataDir)) {
+            for (const file of fs.readdirSync(programDataDir, { recursive: true })) {
+              if (/\.json$/.test(file)) {
+                appFiles.add(`programdata/${file.split(path.sep).join("/")}?v=${commitHash}`);
+              }
+            }
+          }
+          const files = Array.from(appFiles)
+            .filter((f) => /\.(js|css|json\?v=\w+)$/.test(f))
+            .map((f) => {
+              if (f === "app.js" || f === "app.css") {
+                return `/${f}?version=${commitHash}`;
+              } else if (f === "vendors.js" || f === "vendors.css") {
+                return `/${f}?vendor=${commitHash}`;
+              } else {
+                return `/${f}`;
+              }
+            })
+            .sort();
+          compilation.emitAsset(
+            "precache-manifest.json",
+            new sources.RawSource(JSON.stringify({ version: commitHash, files }, null, 2))
+          );
+        }
+      );
+    });
+  },
+};
+
 const uniwindRnRewrite = new NormalModuleReplacementPlugin(/^react-native$/, (resource) => {
   const issuer = (resource.contextInfo && resource.contextInfo.issuer) || resource.context || "";
   if (issuer.includes(`${require("path").sep}uniwind${require("path").sep}`)) {
@@ -139,6 +199,7 @@ const watchConfig = {
 };
 
 const mainConfig = {
+  name: "main",
   ignoreWarnings: [
     {
       module: /@legendapp\/list/,
@@ -239,31 +300,26 @@ const mainConfig = {
     uniwindRnRewrite,
     uniwindStyleSheetRewrite,
     lftMarkerPlugin,
-    new SourceMapDevToolPlugin({
-      append: `\n//# sourceMappingURL=[url]?version=${commitHash}`,
-      filename: "[file].map",
-    }),
+    precacheManifestPlugin,
+    ...(withSourceMaps
+      ? [
+          new SourceMapDevToolPlugin({
+            append: `\n//# sourceMappingURL=[url]?version=${commitHash}`,
+            filename: "[file].map",
+          }),
+        ]
+      : []),
     new MiniCssExtractPlugin({ filename: "[name].css" }),
     new DefinePlugin({
       "process.env.JEST_WORKER_ID": "undefined",
       __DEV__: JSON.stringify(process.env.NODE_ENV !== "production"),
       __COMMIT_HASH__: JSON.stringify(commitHash),
       __FULL_COMMIT_HASH__: JSON.stringify(fullCommitHash),
-      __API_HOST__: JSON.stringify(
-        process.env.NODE_ENV === "production"
-          ? process.env.STAGE
-            ? "https://api3-dev.liftosaur.com"
-            : "https://api3.liftosaur.com"
-          : `https://${localapidomain}.liftosaur.com:${localapiport}`
-      ),
+      // `.invalid` is a reserved TLD that never resolves; in local-only mode the app treats API calls as "offline".
+      __API_HOST__: JSON.stringify(lyteweightApiHost || "https://api.lyteweight.invalid"),
+      __LOCAL_ONLY__: JSON.stringify(isLocalOnly),
       __ENV__: JSON.stringify(process.env.NODE_ENV === "production" ? "production" : "development"),
-      __HOST__: JSON.stringify(
-        process.env.NODE_ENV === "production"
-          ? process.env.STAGE
-            ? "https://stage.liftosaur.com"
-            : "https://www.liftosaur.com"
-          : `https://${localdomain}.liftosaur.com:${localport}`
-      ),
+      __HOST__: runtimeOrigin,
     }),
     new CopyPlugin([
       {
@@ -277,7 +333,7 @@ const mainConfig = {
         },
       },
       {
-        from: process.env.STAGE ? "_redirects_staging" : "_redirects",
+        from: "_redirects",
         to: "./_redirects",
         toType: "file",
       },
@@ -401,6 +457,11 @@ const mainConfig = {
           if (req.url.startsWith("/static/")) {
             req.url = req.url.replace(/^\/static/, "");
           }
+          if (isLocalOnly && (req.url === "/" || req.url.startsWith("/?"))) {
+            res.writeHead(302, { Location: "/app/" });
+            res.end();
+            return;
+          }
           next();
         },
       });
@@ -426,7 +487,8 @@ const mainConfig = {
     liveReload: false,
     host: "0.0.0.0",
     port: localport,
-    proxy: {
+    // Lyteweight: there's no backend in local-only mode, so nothing to proxy to.
+    proxy: isLocalOnly ? {} : {
       "/.well-known/oauth-*": {
         target: localapi,
         secure: false,

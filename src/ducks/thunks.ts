@@ -1,3 +1,4 @@
+import { Lyteweight_isLocalOnly } from "../utils/lyteweight";
 import { IThunk, IDispatch } from "./types";
 import type { NavigationAction } from "@react-navigation/native";
 import { IScreen, IScreenData, IScreenParams } from "../models/screen";
@@ -768,7 +769,12 @@ export function Thunk_sync2(args?: { force?: boolean; cb?: () => void; log?: boo
     }
     try {
       const state = getState();
-      if (state.errors.corruptedstorage == null && !state.nosync && (state.user != null || args?.force)) {
+      if (
+        !Lyteweight_isLocalOnly() &&
+        state.errors.corruptedstorage == null &&
+        !state.nosync &&
+        (state.user != null || args?.force)
+      ) {
         await env.queue.enqueue(
           async (args2, signal) => {
             await load(dispatch, "Sync", async () => {

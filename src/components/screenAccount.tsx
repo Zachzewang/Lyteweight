@@ -1,4 +1,5 @@
 import { JSX, useEffect, useState } from "react";
+import { Lyteweight_isLocalOnly } from "../utils/lyteweight";
 import { View, Pressable, Platform, AppState } from "react-native";
 import { Text } from "./primitives/text";
 import { IDispatch } from "../ducks/types";
@@ -168,6 +169,8 @@ export function ScreenAccount(props: IProps): JSX.Element {
                   Signed in as <Text className="text-sm font-bold text-text-secondary">{props.email}</Text>
                 </Text>
               )
+            ) : Lyteweight_isLocalOnly() ? (
+              <Text className="text-xs text-text-secondary">Data is stored on this device only</Text>
             ) : (
               <Text className="text-xs text-text-error">Not signed in to cloud</Text>
             )}
@@ -195,6 +198,11 @@ export function ScreenAccount(props: IProps): JSX.Element {
             </LinkButton>
           </View>
         </View>
+      ) : Lyteweight_isLocalOnly() ? (
+        <Text className="px-1 py-2 text-sm text-text-secondary">
+          Lyteweight runs without a cloud backend, so there's no sign-in or sync. Use Settings → "Export data to JSON
+          file" to back up your data regularly.
+        </Text>
       ) : (
         <View>
           <Pressable
@@ -221,33 +229,41 @@ export function ScreenAccount(props: IProps): JSX.Element {
           <EmailAuthButton onPress={() => navigateToModal("emailAuthModal")} />
         </View>
       )}
-      <GroupHeader name="🌟 Liftosaur Premium" topPadding={true} />
-      {isLoadingSubscription ? (
-        <MenuItem name="Checking your subscription…" expandName={true} value={<IconSpinner width={18} height={18} />} />
-      ) : (
+      {!Lyteweight_isLocalOnly() && (
         <>
-          <MenuItem
-            name={premiumCard.title}
-            value={premiumCard.actionLabel}
-            shouldShowRightArrow={!!premiumCard.actionLabel}
-            expandName={true}
-            onClick={premiumCard.actionLabel ? () => props.dispatch(Thunk_pushScreen("subscription")) : undefined}
-            addons={
-              premiumCard.subtitle ? (
-                <Text className="-mt-1 text-xs text-text-secondary">{premiumCard.subtitle}</Text>
-              ) : undefined
-            }
-          />
-          {premiumCard.showCancel && (
-            <View className="pt-1">
-              <LinkButton
-                name="account-cancel-subscription"
-                className="text-sm text-text-error"
-                onClick={() => props.dispatch(Thunk_openManageSubscriptions())}
-              >
-                Cancel subscription
-              </LinkButton>
-            </View>
+          <GroupHeader name="🌟 Liftosaur Premium" topPadding={true} />
+          {isLoadingSubscription ? (
+            <MenuItem
+              name="Checking your subscription…"
+              expandName={true}
+              value={<IconSpinner width={18} height={18} />}
+            />
+          ) : (
+            <>
+              <MenuItem
+                name={premiumCard.title}
+                value={premiumCard.actionLabel}
+                shouldShowRightArrow={!!premiumCard.actionLabel}
+                expandName={true}
+                onClick={premiumCard.actionLabel ? () => props.dispatch(Thunk_pushScreen("subscription")) : undefined}
+                addons={
+                  premiumCard.subtitle ? (
+                    <Text className="-mt-1 text-xs text-text-secondary">{premiumCard.subtitle}</Text>
+                  ) : undefined
+                }
+              />
+              {premiumCard.showCancel && (
+                <View className="pt-1">
+                  <LinkButton
+                    name="account-cancel-subscription"
+                    className="text-sm text-text-error"
+                    onClick={() => props.dispatch(Thunk_openManageSubscriptions())}
+                  >
+                    Cancel subscription
+                  </LinkButton>
+                </View>
+              )}
+            </>
           )}
         </>
       )}

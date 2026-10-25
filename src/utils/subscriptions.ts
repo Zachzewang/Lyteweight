@@ -1,3 +1,4 @@
+import { Lyteweight_isLocalOnly } from "./lyteweight";
 import { Service } from "../api/service";
 import { IDispatch } from "../ducks/types";
 import { IState, updateState } from "../models/state";
@@ -9,6 +10,9 @@ import { SubscriptionReceipts_cleanupApple } from "./subscriptionReceipts";
 import { Thunk_postevent } from "../ducks/thunks";
 
 export function Subscriptions_hasSubscription(subscription: ISubscription): boolean {
+  if (Lyteweight_isLocalOnly()) {
+    return true;
+  }
   if (subscription.key && subscription.key !== "unclaimed") {
     return true;
   }

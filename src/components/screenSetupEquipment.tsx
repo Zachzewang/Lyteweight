@@ -1,4 +1,5 @@
 import { JSX } from "react";
+import { Lyteweight_isLocalOnly } from "../utils/lyteweight";
 import { View, Image, ScrollView, Pressable, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Text } from "./primitives/text";
@@ -138,7 +139,7 @@ export function ScreenSetupEquipment(props: IScreenSetupEquipmentProps): JSX.Ele
             buttonSize="lg"
             data-testid="setup-equipment-skip"
             testID="setup-equipment-skip"
-            onClick={() => props.dispatch(Thunk_pushScreen("hearaboutus"))}
+            onClick={() => props.dispatch(Thunk_pushScreen(Lyteweight_isLocalOnly() ? "programselect" : "hearaboutus"))}
           >
             Skip
           </Button>
@@ -216,7 +217,7 @@ export function ScreenSetupPlates(props: IScreenSetupPlatesProps): JSX.Element {
           name="setup-plates-continue"
           kind="purple"
           buttonSize="lg"
-          onClick={() => props.dispatch(Thunk_pushScreen("hearaboutus"))}
+          onClick={() => props.dispatch(Thunk_pushScreen(Lyteweight_isLocalOnly() ? "programselect" : "hearaboutus"))}
           data-testid="setup-plates-continue"
           testID="setup-plates-continue"
         >

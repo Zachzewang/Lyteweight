@@ -1,35 +1,32 @@
 {
-  "short_name": "Liftosaur",
-  "name": "Liftosaur: Weight lifting tracking app",
-  "description": "Weather forecast information",
+  "id": "/app/",
+  "short_name": "Lyteweight",
+  "name": "Lyteweight: Powerlifting Training Tracker",
+  "description": "Powerlifting training tracker with programmable progressions. Based on Liftosaur.",
   "icons": [
     {
       "src": "/icons/icon192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
       "src": "/icons/icon512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
     },
     {
       "src": "/icons/maskable_icon_512.png",
-      "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
-  "start_url": "/app/",
-  "background_color": "#ffffff",
-  "display": "fullscreen",
+  "start_url": "/app/?source=homescreen",
   "scope": "/",
-  "prefer_related_applications": true,
-  "related_applications": [
-    {
-      "platform": "play",
-      "id": "com.liftosaur.www.twa"
-    }
-  ],
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
   "theme_color": "#ffffff"
 }

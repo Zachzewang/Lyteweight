@@ -1,3 +1,4 @@
+import { Lyteweight_isLocalOnly, Lyteweight_sourceCodeUrl, Lyteweight_upstreamUrl } from "../utils/lyteweight";
 import { JSX, memo, useEffect, useState } from "react";
 import { View, Pressable, Linking, Platform } from "react-native";
 import { Text } from "./primitives/text";
@@ -22,7 +23,7 @@ import { ImporterProgram } from "./importerProgram";
 import { useNavOptions } from "../navigation/useNavOptions";
 import { GroupHeader } from "./groupHeader";
 import { StringUtils_truncate } from "../utils/string";
-import { IconDiscord } from "./icons/iconDiscord";
+import { HostConfig_resolveUrl } from "../utils/hostConfig";
 import { IconSpeaker } from "./icons/iconSpeaker";
 import { ImporterLiftosaurCsv } from "./importerLiftosaurCsv";
 import { navigateToModal } from "../navigation/navigationService";
@@ -457,7 +458,7 @@ function ScreenSettingsInner(props: IProps): JSX.Element {
           });
         }}
       />
-      {Features_isEnabled("affiliates", props.user?.id ?? props.tempUserId) && (
+      {!Lyteweight_isLocalOnly() && Features_isEnabled("affiliates", props.user?.id ?? props.tempUserId) && (
         <>
           <GroupHeader name="Earn money with Liftosaur" topPadding={true} />
           <MenuItem
@@ -511,36 +512,13 @@ function ScreenSettingsInner(props: IProps): JSX.Element {
       <MenuItem name="Changelog" onClick={() => WhatsNew_showWhatsNew(props.dispatch)} />
       <Pressable
         className="py-3 border-b border-border-neutral"
-        onPress={() => openExternal("mailto:info@liftosaur.com")}
+        onPress={() => openExternal(`${Lyteweight_sourceCodeUrl}/issues`)}
       >
-        <Text className="text-base text-text-primary">Contact Us</Text>
+        <Text className="text-base text-text-primary">Report an Issue</Text>
       </Pressable>
       <Pressable
         className="py-3 border-b border-border-neutral"
-        onPress={() => openExternal("https://discord.com/invite/AAh3cvdBRs")}
-      >
-        <View className="flex-row items-center">
-          <View className="pr-2">
-            <IconDiscord />
-          </View>
-          <Text className="text-base text-text-primary">Discord Server</Text>
-        </View>
-      </Pressable>
-      <Pressable
-        className="py-3 border-b border-border-neutral"
-        onPress={() => openExternal("https://www.liftosaur.com/privacy.html")}
-      >
-        <Text className="text-base text-text-primary">Privacy Policy</Text>
-      </Pressable>
-      <Pressable
-        className="py-3 border-b border-border-neutral"
-        onPress={() => openExternal("https://www.liftosaur.com/terms.html")}
-      >
-        <Text className="text-base text-text-primary">Terms & Conditions</Text>
-      </Pressable>
-      <Pressable
-        className="py-3 border-b border-border-neutral"
-        onPress={() => openExternal("https://www.liftosaur.com/licenses.html")}
+        onPress={() => openExternal(HostConfig_resolveUrl("/licenses.html"))}
       >
         <Text className="text-base text-text-primary">Licenses</Text>
       </Pressable>
@@ -548,13 +526,13 @@ function ScreenSettingsInner(props: IProps): JSX.Element {
         className="py-3 border-b border-border-neutral"
         onPress={() => openExternal("https://www.liftosaur.com/doc")}
       >
-        <Text className="text-base text-text-primary">Documentation</Text>
+        <Text className="text-base text-text-primary">Liftoscript Documentation (liftosaur.com)</Text>
       </Pressable>
-      <Pressable
-        className="py-3 border-b border-border-neutral"
-        onPress={() => openExternal("https://github.com/astashov/liftosaur")}
-      >
-        <Text className="text-base text-text-primary">Source Code on Github</Text>
+      <Pressable className="py-3 border-b border-border-neutral" onPress={() => openExternal(Lyteweight_sourceCodeUrl)}>
+        <Text className="text-base text-text-primary">Source Code on Github (AGPL-3.0)</Text>
+      </Pressable>
+      <Pressable className="py-3 border-b border-border-neutral" onPress={() => openExternal(Lyteweight_upstreamUrl)}>
+        <Text className="text-base text-text-primary">Based on Liftosaur by Anton Astashov</Text>
       </Pressable>
       <Pressable
         className="py-3 border-b border-border-neutral"

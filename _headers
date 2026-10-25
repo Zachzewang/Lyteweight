@@ -1,11 +1,15 @@
-/main.js
-  cache-control: public, max-age=86400
-/vendors.js
-  cache-control: public, max-age=86400
-/main.css
-  cache-control: public, max-age=86400
-/vendors.css
-  cache-control: public, max-age=86400
+# Always revalidate the entry points, so a new deploy reaches the installed app as soon as it's online.
+/app/*
+  cache-control: no-cache
+/webpushr-sw.js
+  cache-control: no-cache
+  service-worker-allowed: /
+/manifest.webmanifest
+  cache-control: no-cache
+  content-type: application/manifest+json
+/precache-manifest.json
+  cache-control: no-cache
+/chunks/*
+  cache-control: public, max-age=31536000, immutable
 /programdata/*
-  Access-Control-Allow-Origin: *
   cache-control: public, max-age=3600
