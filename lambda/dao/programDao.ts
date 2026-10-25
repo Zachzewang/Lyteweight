@@ -11,6 +11,7 @@ export interface IProgramPayload {
 }
 
 export const programOrder = [
+  "lyteweight-meet-prep",
   "basicBeginner",
   "the5314b",
   "the531bbb",
