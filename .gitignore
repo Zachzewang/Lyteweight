@@ -100,3 +100,6 @@ logs/
 
 .archdoc-snapshots/
 .revmux
+
+# Per-machine Node path for Xcode build phases (see ios/BUILD.md)
+ios/.xcode.env.local

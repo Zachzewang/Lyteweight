@@ -3,8 +3,6 @@ import OSLog
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
-import RollbarNotifier
-import GoogleAdsOnDeviceConversion
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -35,14 +33,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _ = LiftosaurWorkoutMirroringImpl.shared
     // A launch from a watch message never reaches setEventEmitter, so the session is activated here.
     LiftosaurWatchImpl.shared.activateIfNeeded()
-
-    if let cachedUserId = UserDefaults.standard.string(forKey: "LiftosaurCachedUserId") {
-      let config = Rollbar.configuration().mutableCopy()
-      config.setPersonId(cachedUserId, username: nil, email: nil)
-      Rollbar.update(withConfiguration: config)
-    }
-
-    ConversionManager.sharedInstance.setFirstLaunchTime(Date())
 
     RCTFastTextRegistrar.registerComponent()
     RCTLiftoEditorRegistrar.registerComponent()
@@ -107,10 +97,9 @@ class ReactNativeDelegate: RCTDefaultReactNativeFactoryDelegate {
       enableMinification: RCTBundleURLProvider.sharedSettings().enableMinification,
       inlineSourceMap: RCTBundleURLProvider.sharedSettings().inlineSourceMap
     )
-#elseif DISABLE_OTA
-    return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
 #else
-    return LftUpdaterPath.effectiveBundleURL()
+    // Lyteweight has no update server; the OTA path would load bundles published for Liftosaur.
+    return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
 #endif
   }
 }

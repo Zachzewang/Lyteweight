@@ -1,136 +1,45 @@
 import "../global.css";
 import React, { useMemo, useRef, useState, useEffect } from "react";
-import { ActivityIndicator, AppState, InteractionManager, Linking, NativeModules, Platform, View } from "react-native";
-import { Client as RollbarClient } from "rollbar-react-native";
+import { ActivityIndicator, AppState, InteractionManager, Linking, Platform, View } from "react-native";
 import RB from "rollbar";
-import { Analytics_initialize, Analytics_setUserId } from "./utils/analytics";
 import { RollbarUtils_config } from "./utils/rollbar";
-import { AppAttribution_get } from "./utils/appAttribution";
-import { Ota_init, Ota_activeBundleIdSync } from "./utils/ota";
 import { RN_COMMIT_HASH, RN_FULL_COMMIT_HASH } from "./rnBuildInfo";
-import { localdomain, localapidomain, localport, localapiport } from "./localdomain";
 
 declare let Rollbar: RB;
 
 declare let __HOST__: string;
-declare const __PERF__: boolean | undefined;
 
 // Inject compile-time constants that are normally provided by webpack's DefinePlugin.
 // Metro doesn't have an equivalent, so we attach them to globalThis at module init.
-// Toggle the `useLocal` flag for local development vs production.
-// Dev hosts come from localdomain.js so each git worktree's native build targets
-// its own dev/api/streaming ports (see scripts/worktree-create.sh).
-// A PERF=1 release build also targets local: its traces post to the devserver's /api/_dev/perf.
-const useLocal = __DEV__ || (typeof __PERF__ !== "undefined" && __PERF__ === true);
-const nativeHost = useLocal ? `https://${localdomain}.liftosaur.com:${localport}` : "https://www.liftosaur.com";
-const nativeApiHost = useLocal
-  ? `https://${localapidomain}.liftosaur.com:${localapiport}`
-  : "https://api3.liftosaur.com";
+// Lyteweight has no backend: program data comes from the hosted web app, and the API host is a reserved
+// `.invalid` name, so every API call fails the same way it does offline.
+const nativeHost = "https://lyteweight.pages.dev";
+const nativeApiHost = "https://api.lyteweight.invalid";
 const globalAny = globalThis as unknown as {
   __HOST__: string;
   __API_HOST__: string;
+  __LOCAL_ONLY__: boolean;
   __ENV__: string;
   __COMMIT_HASH__: string;
   __FULL_COMMIT_HASH__: string;
 };
 globalAny.__HOST__ = nativeHost;
 globalAny.__API_HOST__ = nativeApiHost;
+globalAny.__LOCAL_ONLY__ = true;
 globalAny.__ENV__ = Platform.OS === "ios" ? "ios-rn" : "android-rn";
 globalAny.__COMMIT_HASH__ = RN_COMMIT_HASH;
 globalAny.__FULL_COMMIT_HASH__ = RN_FULL_COMMIT_HASH;
 
-interface IRollbarFrame {
-  filename?: string;
-}
-interface IRollbarPayload {
-  body?: {
-    trace?: { frames?: IRollbarFrame[] };
-    trace_chain?: { frames?: IRollbarFrame[] }[];
-  };
-}
-
-// Rollbar source-map matching: sourcemaps are uploaded as bundle/<updateId>-<platform>.js
-// (see scripts/uploadRnSourcemaps.sh). Rewrite any frame whose filename looks like our
-// JS bundle to that canonical URL. Falls back to "embedded" when no OTA bundle is active.
-const BUNDLE_FRAME_PATTERN = /main\.jsbundle|index\.android\.bundle|\/updates\/[^/]+\/[^/]+\/[^/]+\//;
-
-function rewriteRollbarFrames(payload: IRollbarPayload): void {
-  const updateId = Ota_activeBundleIdSync() ?? "embedded";
-  const canonical = `https://www.liftosaur.com/bundle/${updateId}-${Platform.OS}.js`;
-  const traces = [payload?.body?.trace, ...(payload?.body?.trace_chain ?? [])];
-  for (const trace of traces) {
-    const frames = trace?.frames;
-    if (!Array.isArray(frames)) {
-      continue;
-    }
-    for (const f of frames) {
-      if (typeof f?.filename !== "string") {
-        continue;
-      }
-      if (!BUNDLE_FRAME_PATTERN.test(f.filename)) {
-        continue;
-      }
-      f.filename = canonical;
-    }
-  }
-}
-
-// JS-reported items don't pass through the native Rollbar SDKs, so mirror the
-// client.ios/client.android fields those SDKs attach to native crash reports.
-// rollbar-react-native builds the same attributes natively for its
-// captureDeviceInfo option, but nests them under client.os — fetch them
-// directly and place them at the path native crashes use.
-function rollbarClientAttribution(): Record<string, unknown> {
-  let device: Record<string, unknown> = {};
-  try {
-    const native = (NativeModules as { RollbarReactNative?: { deviceAttributes?: () => string } }).RollbarReactNative;
-    const raw = native?.deviceAttributes?.();
-    device = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
-  } catch {
-    device = {};
-  }
-  if (Platform.OS === "ios") {
-    return { ios: device };
-  }
-  if (Platform.OS === "android") {
-    // deviceAttributes lacks version_code, which native crash reports do include
-    return { android: { ...device, version_code: AppAttribution_get().androidVersion } };
-  }
-  return {};
-}
-
-const rollbarClient = new RollbarClient({
-  accessToken: "f29180c0746c4922996ff41dfc2527d2",
-  captureUncaught: true,
-  captureUnhandledRejections: true,
-  payload: {
-    environment: Platform.OS === "ios" ? "ios-rn" : "android-rn",
-    client: {
-      javascript: {
-        source_map_enabled: true,
-        code_version: RN_FULL_COMMIT_HASH,
-        guess_uncaught_frames: true,
-      },
-      ...rollbarClientAttribution(),
-    },
-  },
-  transform: rewriteRollbarFrames,
-});
-
+// Lyteweight has no error reporting service; Rollbar calls across the app only log to the console.
 const rollbarShim = {
-  error: (obj: unknown, extra?: unknown) => rollbarClient.error(obj as never, extra as never),
-  warning: (obj: unknown, extra?: unknown) => rollbarClient.warning(obj as never, extra as never),
-  warn: (obj: unknown, extra?: unknown) => rollbarClient.warning(obj as never, extra as never),
-  info: (obj: unknown, extra?: unknown) => rollbarClient.info(obj as never, extra as never),
-  debug: (obj: unknown, extra?: unknown) => rollbarClient.debug(obj as never, extra as never),
-  critical: (obj: unknown, extra?: unknown) => rollbarClient.critical(obj as never, extra as never),
-  log: (obj: unknown, extra?: unknown) => rollbarClient.log(obj as never, extra as never),
-  configure: (config: { payload?: { person?: { id?: string; email?: string; username?: string } } }) => {
-    const person = config?.payload?.person;
-    if (person?.id) {
-      rollbarClient.setPerson(person.id, person.username ?? null, person.email ?? null);
-    }
-  },
+  error: (...args: unknown[]) => console.error(...args),
+  warning: (...args: unknown[]) => console.warn(...args),
+  warn: (...args: unknown[]) => console.warn(...args),
+  info: (...args: unknown[]) => console.info(...args),
+  debug: (...args: unknown[]) => console.debug(...args),
+  critical: (...args: unknown[]) => console.error(...args),
+  log: (...args: unknown[]) => console.log(...args),
+  configure: () => undefined,
 };
 (globalThis as unknown as { Rollbar: unknown }).Rollbar = rollbarShim;
 
@@ -381,32 +290,6 @@ export function AppRoot(props: { initialState: IState; env: IEnv }): React.JSX.E
     }
   }, [state.storage.settings.alwaysOnDisplay]);
 
-  useEffect(() => {
-    // A debug sandbox must not register the target-derived id with native analytics/attribution.
-    if (AdminDebug_isDebugAccountId(stateRef.current.storage.tempUserId)) {
-      return undefined;
-    }
-    return Analytics_initialize({
-      userId: stateRef.current.user?.id ?? stateRef.current.storage.tempUserId,
-      onAttribution: (data) => {
-        if (data.isOrganic) {
-          return;
-        }
-        const referrer = `${data.mediaSource}_${data.campaign}`;
-        if (stateRef.current.storage.referrer === referrer) {
-          return;
-        }
-        updateState(dispatch, [lb<IState>().p("storage").p("referrer").record(referrer)], "Set Referrer");
-      },
-      onLandingPage: (landingPage) => {
-        if (stateRef.current.storage.landingPage) {
-          return;
-        }
-        updateState(dispatch, [lb<IState>().p("storage").p("landingPage").record(landingPage)], "Set Landing Page");
-      },
-    });
-  }, [dispatch]);
-
   // In a debug sandbox keep all native identity (AppsFlyer, Rollbar person, EventManager telemetry)
   // anonymous - the target-derived id must never leave the device. The `if (!personId) return`
   // guards in the effects below then skip every identity-emitting path.
@@ -417,7 +300,6 @@ export function AppRoot(props: { initialState: IState; env: IEnv }): React.JSX.E
     if (!personId) {
       return;
     }
-    Analytics_setUserId(personId);
     Rollbar.configure(RollbarUtils_config({ person: { id: personId, email: personEmail } }));
   }, [personId, personEmail]);
 
@@ -758,7 +640,6 @@ export function App(): React.JSX.Element {
       setInitialState(state);
     }
     load();
-    Ota_init();
   }, []);
 
   if (!initialState) {

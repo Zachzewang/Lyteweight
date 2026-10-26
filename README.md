@@ -31,6 +31,10 @@ longer proxies to the Liftosaur API.
 To point the app at your own backend instead, set `LYTEWEIGHT_API_HOST=https://your-api.example.com`
 when building.
 
+## iPhone app
+
+The native iOS app builds on a Mac with Xcode and installs with a free Apple ID. Step-by-step: [ios/BUILD.md](ios/BUILD.md).
+
 ## Hosting (Cloudflare Pages)
 
 Connect this repo in Cloudflare Pages with:

@@ -21,6 +21,7 @@ import { ScreenExercises as ScreenExercisesComponent } from "../../components/sc
 import { ScreenExerciseStats as ScreenExerciseStatsComponent } from "../../components/screenExerciseStats";
 import { ScreenRecentImports as ScreenRecentImportsComponent } from "../../components/screenRecentImports";
 import { ScreenImportPreview as ScreenImportPreviewComponent } from "../../components/screenImportPreview";
+import { ScreenMeetPrep as ScreenMeetPrepComponent } from "../../components/screenMeetPrep";
 import { Program_getProgram } from "../../models/program";
 import { Exercise_find, Exercise_toKey } from "../../models/exercise";
 import { Equipment_getEquipmentOfGym } from "../../models/equipment";
@@ -363,6 +364,24 @@ export function NavScreenRecentImports(): React.JSX.Element {
     <View className="flex-1 bg-background-default">
       <NavScreenContent>
         <ScreenRecentImportsComponent dispatch={dispatch} importSessions={untrack(state.storage.importSessions)} />
+      </NavScreenContent>
+    </View>
+  );
+}
+
+export function NavScreenMeetPrep(): React.JSX.Element {
+  const state = useTrackedState();
+  const dispatch = useTrackedDispatch();
+  return (
+    <View className="flex-1 bg-background-default">
+      <NavScreenContent>
+        <ScreenMeetPrepComponent
+          dispatch={dispatch}
+          meetProfile={untrack(state.storage.meetProfile)}
+          history={untrack(state.storage.history)}
+          stats={untrack(state.storage.stats)}
+          settings={untrack(state.storage.settings)}
+        />
       </NavScreenContent>
     </View>
   );

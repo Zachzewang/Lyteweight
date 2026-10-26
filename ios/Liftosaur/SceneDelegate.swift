@@ -1,7 +1,5 @@
 import UIKit
 import React
-import TikTokOpenSDKCore
-import AppsFlyerLib
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
@@ -62,18 +60,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     if let sourceApplication {
       options[.sourceApplication] = sourceApplication
     }
-    AppsFlyerLib.shared().handleOpen(url, options: options)
-    if TikTokURLHandler.handleOpenURL(url) {
-      return
-    }
     _ = RCTLinkingManager.application(UIApplication.shared, open: url, options: options)
   }
 
   private func handleContinue(_ userActivity: NSUserActivity) {
-    AppsFlyerLib.shared().continue(userActivity, restorationHandler: nil)
-    if TikTokURLHandler.handleOpenURL(userActivity.webpageURL) {
-      return
-    }
     _ = RCTLinkingManager.application(UIApplication.shared, continue: userActivity) { _ in }
   }
 }
