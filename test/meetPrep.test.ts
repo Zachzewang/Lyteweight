@@ -8,15 +8,30 @@ import {
   MeetProfile_parseKg,
   MeetProfile_planningMaxKg,
   MeetProfile_recentE1rmKg,
-  MeetProfile_seed,
+  MeetProfile_empty,
+  MeetProfile_headline,
   MeetProfile_withLiftGoal,
 } from "../src/models/meetProfile";
 import { Weight_build, Weight_getOneRepMax } from "../src/models/weight";
 import { MeetPrepSummary_build } from "../src/models/meetPrepSummary";
 import { Dots_score } from "../src/models/dots";
-import { IHistoryRecord, ISet } from "../src/types";
+import { IHistoryRecord, IMeetProfile, ISet } from "../src/types";
 
 const day = 24 * 60 * 60 * 1000;
+
+const testProfile: IMeetProfile = {
+  federation: "USAPL",
+  division: "Raw",
+  sex: "male",
+  meetDate: "2027-02-20",
+  weightClassKg: 67.5,
+  bodyweightKg: 70,
+  lifts: {
+    squat: { bestKg: 132.5, targetKg: 145 },
+    bench: { bestKg: 82.5, targetKg: 100 },
+    deadlift: { bestKg: 145, targetKg: 160 },
+  },
+};
 const now = new Date(2026, 9, 25, 12, 0).getTime();
 
 function set(kg: number, reps: number, rpe?: number, isCompleted: boolean = true): ISet {
@@ -70,7 +85,7 @@ describe("MeetAttempts", () => {
 
 describe("MeetProfile", () => {
   it("counts days until the meet from the start of today", () => {
-    expect(MeetProfile_daysUntilMeet(MeetProfile_seed, now)).to.equal(118);
+    expect(MeetProfile_daysUntilMeet(testProfile, now)).to.equal(118);
   });
 
   it("takes the best RPE-adjusted e1RM from recent completed sets of the lift", () => {
@@ -87,7 +102,7 @@ describe("MeetProfile", () => {
   });
 
   it("plans from the higher of the best and the recent e1RM, unless overridden", () => {
-    const profile = MeetProfile_seed;
+    const profile = testProfile;
     expect(MeetProfile_planningMaxKg(profile, "squat", 120)).to.equal(132.5);
     expect(MeetProfile_planningMaxKg(profile, "squat", 137.3)).to.equal(137.3);
     const overridden = {
@@ -97,8 +112,8 @@ describe("MeetProfile", () => {
     expect(MeetProfile_planningMaxKg(overridden, "squat", 137.3)).to.equal(140);
   });
 
-  it("summarizes totals, cut and DOTS for the seeded profile with no history", () => {
-    const summary = MeetPrepSummary_build(MeetProfile_seed, [], undefined, now);
+  it("summarizes totals, cut and DOTS for a filled-in profile with no history", () => {
+    const summary = MeetPrepSummary_build(testProfile, [], undefined, now);
     expect(summary.daysUntilMeet).to.equal(118);
     expect(summary.bodyweightKg).to.equal(70);
     expect(summary.kgToCut).to.equal(2.5);
@@ -109,7 +124,7 @@ describe("MeetProfile", () => {
     expect(summary.dotsTargetAtClass).to.be.closeTo(Dots_score(405, 67.5, "male"), 0.001);
     const squat = summary.lifts.find((l) => l.lift === "squat")!;
     expect(squat.attempts).to.eql(MeetAttempts_plan(132.5));
-    expect(squat.platesPerSide.opener).to.eql(MeetAttempts_platesPerSide(squat.attempts.opener));
+    expect(squat.platesPerSide!.opener).to.eql(MeetAttempts_platesPerSide(squat.attempts!.opener));
   });
 
   it("parses edited kg values and meet dates, rejecting bad input", () => {
@@ -123,14 +138,34 @@ describe("MeetProfile", () => {
   });
 
   it("changes one lift goal without touching the others", () => {
-    const updated = MeetProfile_withLiftGoal(MeetProfile_seed, "bench", { targetKg: 102.5 });
+    const updated = MeetProfile_withLiftGoal(testProfile, "bench", { targetKg: 102.5 });
     expect(updated.lifts.bench).to.eql({ bestKg: 82.5, targetKg: 102.5 });
-    expect(updated.lifts.squat).to.equal(MeetProfile_seed.lifts.squat);
-    expect(MeetProfile_seed.lifts.bench.targetKg).to.equal(100);
+    expect(updated.lifts.squat).to.equal(testProfile.lifts.squat);
+    expect(testProfile.lifts.bench.targetKg).to.equal(100);
+  });
+
+  it("starts a new profile empty, 17 weeks out, with nothing to plan or score", () => {
+    const empty = MeetProfile_empty(now);
+    expect(MeetProfile_daysUntilMeet(empty, now)).to.equal(119);
+    const summary = MeetPrepSummary_build(empty, [], undefined, now);
+    expect(summary.lifts.every((l) => l.attempts == null)).to.equal(true);
+    expect(summary.bestTotalKg).to.equal(undefined);
+    expect(summary.kgToCut).to.equal(undefined);
+    expect(summary.dotsNow).to.equal(undefined);
+    expect(summary.dotsTargetAtClass).to.equal(undefined);
+    expect(MeetProfile_headline(empty, 119)).to.equal("Raw · 119 days to the meet");
+  });
+
+  it("plans attempts from logged history even before bests are entered", () => {
+    const history = [record(3, "squat", [set(120, 3, 8)])];
+    const summary = MeetPrepSummary_build(MeetProfile_empty(now), history, undefined, now);
+    const squat = summary.lifts.find((l) => l.lift === "squat")!;
+    expect(squat.attempts).to.eql(MeetAttempts_plan(squat.recentE1rmKg!));
+    expect(summary.lifts.find((l) => l.lift === "bench")!.attempts).to.equal(undefined);
   });
 
   it("prefers logged bodyweight over the profile's", () => {
-    expect(MeetProfile_bodyweightKg(MeetProfile_seed, Weight_build(68.4, "kg"))).to.equal(68.4);
-    expect(MeetProfile_bodyweightKg(MeetProfile_seed, undefined)).to.equal(70);
+    expect(MeetProfile_bodyweightKg(testProfile, Weight_build(68.4, "kg"))).to.equal(68.4);
+    expect(MeetProfile_bodyweightKg(testProfile, undefined)).to.equal(70);
   });
 });

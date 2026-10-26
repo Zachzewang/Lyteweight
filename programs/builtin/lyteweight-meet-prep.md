@@ -12,7 +12,7 @@ duration: "60-90"
 goal: "strength"
 ---
 
-A 17-week raw powerlifting meet prep, written for a February 20, 2027 meet. It runs a hypertrophy block, a strength block and a peak block, then meet week. Every competition lift uses one top set at a target RPE, then back-off sets whose weights adjust to how the top set felt.
+A 17-week raw powerlifting meet prep. Start it 17 weeks before your meet, so week 17 is meet week. It runs a hypertrophy block, a strength block and a peak block, then meet week. Every competition lift uses one top set at a target RPE, then back-off sets whose weights adjust to how the top set felt.
 
 <!-- more -->
 
@@ -325,7 +325,7 @@ Bench Press / ...topset[1:1] / 1x1 @9+ (Top), 2x2 @7 (Backoff)
 ## Day 4
 
 
-// **Meet week.** Two short sessions early in the week, then rest. Meet day is Saturday, February 20.
+// **Meet week.** Two short sessions early in the week, then rest until the meet.
 // * Work up to your planned openers only. No grinders.
 # Week 17
 ## Day 1

@@ -18,6 +18,9 @@ import {
   MeetProfile_exerciseTypes,
   MeetProfile_formatKg,
   MeetProfile_get,
+  MeetProfile_hasAllBests,
+  MeetProfile_headline,
+  MeetProfile_kgInput,
   MeetProfile_liftNames,
   MeetProfile_parseDate,
   MeetProfile_parseKg,
@@ -42,7 +45,7 @@ const attemptLabels: [keyof IMeetAttempts, string][] = [
 
 export function ScreenMeetPrep(props: IProps): JSX.Element {
   useNavOptions({ navTitle: "Meet Prep" });
-  const profile = MeetProfile_get(props.meetProfile);
+  const profile = MeetProfile_get(props.meetProfile, Date.now());
   const summary = MeetPrepSummary_build(profile, props.history, Stats_getCurrentBodyweight(props.stats), Date.now());
 
   const save = (newProfile: IMeetProfile, desc: string): void => {
@@ -57,12 +60,35 @@ export function ScreenMeetPrep(props: IProps): JSX.Element {
 
   return (
     <View className="px-gutter pb-8">
-      <Text className="pt-2 text-sm text-text-secondary">
-        {profile.federation} {profile.division} · {profile.weightClassKg} kg class · {summary.daysUntilMeet} days to the
-        meet
-      </Text>
+      <Text className="pt-2 text-sm text-text-secondary">{MeetProfile_headline(profile, summary.daysUntilMeet)}</Text>
 
       <GroupHeader name="Meet" topPadding={true} />
+      <MenuItemEditable
+        type="text"
+        name="Federation"
+        value={profile.federation}
+        onChange={(v) => save({ ...profile, federation: (v ?? "").trim() }, "Meet prep: federation")}
+      />
+      <MenuItemEditable
+        type="select"
+        name="Division"
+        value={profile.division}
+        values={[
+          ["Raw", "Raw"],
+          ["Equipped", "Equipped"],
+        ]}
+        onChange={(v) => save({ ...profile, division: v ?? "Raw" }, "Meet prep: division")}
+      />
+      <MenuItemEditable
+        type="select"
+        name="Sex (for DOTS)"
+        value={profile.sex}
+        values={[
+          ["male", "Male"],
+          ["female", "Female"],
+        ]}
+        onChange={(v) => save({ ...profile, sex: v === "female" ? "female" : "male" }, "Meet prep: sex")}
+      />
       <MenuItemEditable
         type="text"
         name="Meet date"
@@ -77,7 +103,7 @@ export function ScreenMeetPrep(props: IProps): JSX.Element {
       <MenuItemEditable
         type="number"
         name="Weight class"
-        value={`${profile.weightClassKg}`}
+        value={MeetProfile_kgInput(profile.weightClassKg)}
         valueUnits="kg"
         onChange={(v) => {
           const kg = MeetProfile_parseKg(v);
@@ -89,7 +115,7 @@ export function ScreenMeetPrep(props: IProps): JSX.Element {
       <MenuItemEditable
         type="number"
         name="Bodyweight"
-        value={summary.bodyweightKg != null ? `${summary.bodyweightKg}` : ""}
+        value={MeetProfile_kgInput(summary.bodyweightKg)}
         valueUnits="kg"
         onChange={(v) => {
           const kg = MeetProfile_parseKg(v);
@@ -110,34 +136,40 @@ export function ScreenMeetPrep(props: IProps): JSX.Element {
       <MenuItem name="Planned thirds total" value={MeetProfile_formatKg(summary.plannedTotalKg)} />
       <MenuItem name="Target total" value={MeetProfile_formatKg(summary.targetTotalKg)} />
       <MenuItem name="DOTS now" value={summary.dotsNow != null ? summary.dotsNow.toFixed(1) : "-"} />
-      <MenuItem
-        name={`DOTS, planned thirds at ${profile.weightClassKg} kg`}
-        value={summary.dotsPlannedAtClass.toFixed(1)}
-      />
-      <MenuItem
-        name={`DOTS, target total at ${profile.weightClassKg} kg`}
-        value={summary.dotsTargetAtClass.toFixed(1)}
-      />
+      {summary.dotsPlannedAtClass != null && (
+        <MenuItem
+          name={`DOTS, planned thirds at ${profile.weightClassKg} kg`}
+          value={summary.dotsPlannedAtClass.toFixed(1)}
+        />
+      )}
+      {summary.dotsTargetAtClass != null && (
+        <MenuItem
+          name={`DOTS, target total at ${profile.weightClassKg} kg`}
+          value={summary.dotsTargetAtClass.toFixed(1)}
+        />
+      )}
 
-      <View className="items-center pt-6">
-        <Button
-          name="meet-prep-set-1rms"
-          kind="purple"
-          onClick={async () => {
-            if (await Dialog_confirm("Set the 1RM of Squat, Bench Press and Deadlift to your best lifts?")) {
-              for (const lift of summary.lifts) {
-                const weight = Weight_build(lift.goal.bestKg, "kg");
-                Settings_setOneRM(props.dispatch, MeetProfile_exerciseTypes[lift.lift], weight, props.settings);
+      {MeetProfile_hasAllBests(profile) && (
+        <View className="items-center pt-6">
+          <Button
+            name="meet-prep-set-1rms"
+            kind="purple"
+            onClick={async () => {
+              if (await Dialog_confirm("Set the 1RM of Squat, Bench Press and Deadlift to your best lifts?")) {
+                for (const lift of summary.lifts) {
+                  const weight = Weight_build(lift.goal.bestKg, "kg");
+                  Settings_setOneRM(props.dispatch, MeetProfile_exerciseTypes[lift.lift], weight, props.settings);
+                }
               }
-            }
-          }}
-        >
-          Use bests as program 1RMs
-        </Button>
-        <Text className="pt-2 text-xs text-center text-text-secondary">
-          Top sets in Lyteweight Meet Prep are sized from these 1RMs.
-        </Text>
-      </View>
+            }}
+          >
+            Use bests as program 1RMs
+          </Button>
+          <Text className="pt-2 text-xs text-center text-text-secondary">
+            Top sets in Lyteweight Meet Prep are sized from these 1RMs.
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -153,14 +185,14 @@ function LiftSection(props: {
       <MenuItemEditable
         type="number"
         name="Best"
-        value={`${lift.goal.bestKg}`}
+        value={MeetProfile_kgInput(lift.goal.bestKg)}
         valueUnits="kg"
         onChange={(v) => props.onChange(lift.lift, "bestKg", v)}
       />
       <MenuItemEditable
         type="number"
         name="Target"
-        value={`${lift.goal.targetKg}`}
+        value={MeetProfile_kgInput(lift.goal.targetKg)}
         valueUnits="kg"
         onChange={(v) => props.onChange(lift.lift, "targetKg", v)}
       />
@@ -168,22 +200,28 @@ function LiftSection(props: {
       <MenuItemEditable
         type="number"
         name="Plan attempts from"
-        value={`${Math.round(lift.planningMaxKg * 10) / 10}`}
+        value={MeetProfile_kgInput(Math.round(lift.planningMaxKg * 10) / 10)}
         valueUnits="kg"
         onChange={(v) => props.onChange(lift.lift, "planningMaxKg", v)}
       />
-      {attemptLabels.map(([key, label]) => (
-        <MenuItem
-          key={key}
-          name={label}
-          value={
-            <View className="items-end">
-              <Text className="text-base font-bold text-text-primary">{lift.attempts[key]} kg</Text>
-              <Text className="text-xs text-text-secondary">{MeetAttempts_formatPlates(lift.platesPerSide[key])}</Text>
-            </View>
-          }
-        />
-      ))}
+      {lift.attempts == null ? (
+        <Text className="py-2 text-sm text-text-secondary">Enter your best to plan attempts.</Text>
+      ) : (
+        attemptLabels.map(([key, label]) => (
+          <MenuItem
+            key={key}
+            name={label}
+            value={
+              <View className="items-end">
+                <Text className="text-base font-bold text-text-primary">{lift.attempts![key]} kg</Text>
+                <Text className="text-xs text-text-secondary">
+                  {MeetAttempts_formatPlates(lift.platesPerSide?.[key])}
+                </Text>
+              </View>
+            }
+          />
+        ))
+      )}
     </View>
   );
 }

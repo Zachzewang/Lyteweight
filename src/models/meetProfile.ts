@@ -13,22 +13,9 @@ export const MeetProfile_liftNames: Record<IMeetLift, string> = {
   deadlift: "Deadlift",
 };
 
-// Lyteweight's owner: USAPL raw, last meet at 75kg, cutting to 67.5kg for the February 20, 2027 meet.
-export const MeetProfile_seed: IMeetProfile = {
-  federation: "USAPL",
-  division: "Raw",
-  sex: "male",
-  meetDate: "2027-02-20",
-  weightClassKg: 67.5,
-  bodyweightKg: 70,
-  lifts: {
-    squat: { bestKg: 132.5, targetKg: 145 },
-    bench: { bestKg: 82.5, targetKg: 100 },
-    deadlift: { bestKg: 145, targetKg: 160 },
-  },
-};
-
 const dayMs = 24 * 60 * 60 * 1000;
+// Lyteweight Meet Prep is 17 weeks long, so a new profile assumes a meet that far out.
+const defaultWeeksOut = 17;
 // RPE-table estimates get unreliable past 10 reps, so higher-rep sets don't count toward e1RM.
 const maxRepsForE1rm = 10;
 
@@ -59,8 +46,44 @@ export function MeetProfile_formatKg(kg: number | undefined): string {
   return kg == null ? "-" : `${Math.round(kg * 10) / 10} kg`;
 }
 
-export function MeetProfile_get(profile: IMeetProfile | undefined): IMeetProfile {
-  return profile ?? MeetProfile_seed;
+/** A profile with nothing filled in yet: 0 means "not set" for weights and the weight class. */
+export function MeetProfile_empty(now: number): IMeetProfile {
+  const meet = new Date(now + defaultWeeksOut * 7 * dayMs);
+  const pad = (n: number): string => `${n}`.padStart(2, "0");
+  return {
+    federation: "",
+    division: "Raw",
+    sex: "male",
+    meetDate: `${meet.getFullYear()}-${pad(meet.getMonth() + 1)}-${pad(meet.getDate())}`,
+    weightClassKg: 0,
+    lifts: {
+      squat: { bestKg: 0, targetKg: 0 },
+      bench: { bestKg: 0, targetKg: 0 },
+      deadlift: { bestKg: 0, targetKg: 0 },
+    },
+  };
+}
+
+export function MeetProfile_get(profile: IMeetProfile | undefined, now: number): IMeetProfile {
+  return profile ?? MeetProfile_empty(now);
+}
+
+/** Text for an editable kg field: blank instead of 0, so an unset value reads as empty. */
+export function MeetProfile_kgInput(kg: number | undefined): string {
+  return kg != null && kg > 0 ? `${kg}` : "";
+}
+
+export function MeetProfile_headline(profile: IMeetProfile, daysUntilMeet: number): string {
+  const parts = [
+    [profile.federation, profile.division].filter((p) => p).join(" "),
+    profile.weightClassKg > 0 ? `${profile.weightClassKg} kg class` : "",
+    daysUntilMeet >= 0 ? `${daysUntilMeet} days to the meet` : "Meet date has passed",
+  ];
+  return parts.filter((p) => p).join(" · ");
+}
+
+export function MeetProfile_hasAllBests(profile: IMeetProfile): boolean {
+  return Object.values(profile.lifts).every((goal) => goal.bestKg > 0);
 }
 
 export function MeetProfile_daysUntilMeet(profile: IMeetProfile, now: number): number {
