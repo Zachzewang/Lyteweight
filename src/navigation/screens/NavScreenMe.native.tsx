@@ -22,6 +22,7 @@ import { ScreenExerciseStats as ScreenExerciseStatsComponent } from "../../compo
 import { ScreenRecentImports as ScreenRecentImportsComponent } from "../../components/screenRecentImports";
 import { ScreenImportPreview as ScreenImportPreviewComponent } from "../../components/screenImportPreview";
 import { ScreenMeetPrep as ScreenMeetPrepComponent } from "../../components/screenMeetPrep";
+import { ScreenIntegrations as ScreenIntegrationsComponent } from "../../components/screenIntegrations";
 import { Program_getProgram } from "../../models/program";
 import { Exercise_find, Exercise_toKey } from "../../models/exercise";
 import { Equipment_getEquipmentOfGym } from "../../models/equipment";
@@ -382,6 +383,18 @@ export function NavScreenMeetPrep(): React.JSX.Element {
           stats={untrack(state.storage.stats)}
           settings={untrack(state.storage.settings)}
         />
+      </NavScreenContent>
+    </View>
+  );
+}
+
+export function NavScreenIntegrations(): React.JSX.Element {
+  const state = useTrackedState();
+  const dispatch = useTrackedDispatch();
+  return (
+    <View className="flex-1 bg-background-default">
+      <NavScreenContent>
+        <ScreenIntegrationsComponent dispatch={dispatch} integrations={untrack(state.storage.integrations)} />
       </NavScreenContent>
     </View>
   );

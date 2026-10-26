@@ -38,6 +38,8 @@
   "include": [
     "src/**/*",
     "server/**/*",
+    "cloudflare/**/*",
+    "functions/**/*",
     "scripts/**/*",
     "lambda/**/*",
     "liftosaur-cdk/**/*",

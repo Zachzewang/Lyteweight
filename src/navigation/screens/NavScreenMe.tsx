@@ -22,6 +22,7 @@ import { ScreenExerciseStats as ScreenExerciseStatsComponent } from "../../compo
 import { ScreenRecentImports as ScreenRecentImportsComponent } from "../../components/screenRecentImports";
 import { ScreenImportPreview as ScreenImportPreviewComponent } from "../../components/screenImportPreview";
 import { ScreenMeetPrep as ScreenMeetPrepComponent } from "../../components/screenMeetPrep";
+import { ScreenIntegrations as ScreenIntegrationsComponent } from "../../components/screenIntegrations";
 import { Program_getProgram } from "../../models/program";
 import { Exercise_find, Exercise_toKey } from "../../models/exercise";
 import { Equipment_getEquipmentOfGym } from "../../models/equipment";
@@ -315,6 +316,15 @@ export function NavScreenMeetPrep(): JSX.Element {
         stats={state.storage.stats}
         settings={state.storage.settings}
       />
+    </NavScreenContent>
+  );
+}
+
+export function NavScreenIntegrations(): JSX.Element {
+  const { state, dispatch } = useAppState();
+  return (
+    <NavScreenContent>
+      <ScreenIntegrationsComponent dispatch={dispatch} integrations={state.storage.integrations} />
     </NavScreenContent>
   );
 }

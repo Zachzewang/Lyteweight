@@ -371,6 +371,10 @@ const mainConfig = {
         to: `privacy.html`,
       },
       {
+        from: `src/lyteweight-privacy.html`,
+        to: `lyteweight-privacy.html`,
+      },
+      {
         from: `src/healthconnectprivacypolicy.html`,
         to: `healthconnectprivacypolicy.html`,
       },

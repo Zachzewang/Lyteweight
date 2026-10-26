@@ -71,7 +71,7 @@ function initialize(service: ServiceWorkerGlobalScope): void {
       return;
     }
     const url = UrlUtils_build(e.request.url);
-    if (url.origin !== service.location.origin) {
+    if (url.origin !== service.location.origin || url.pathname.startsWith("/integrations/")) {
       return;
     }
 

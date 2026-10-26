@@ -120,6 +120,7 @@ import { ActionSheetHost } from "./components/actionSheetHost";
 import { PromptHost } from "./components/promptHost";
 import { Toast } from "./components/toast";
 import { useOnloadModals } from "./navigation/useOnloadModals";
+import { useIntegrationsAutoSync } from "./navigation/useIntegrationsAutoSync";
 import { SystemBars } from "react-native-edge-to-edge";
 import { activateKeepAwake, deactivateKeepAwake } from "@sayem314/react-native-keep-awake";
 import { ImportExporter_handleUniversalLink } from "./lib/importexporter";
@@ -529,6 +530,7 @@ export function AppRoot(props: { initialState: IState; env: IEnv }): React.JSX.E
   }, [isNavReady, showCorruptedState]);
 
   useOnloadModals(state, dispatch, isNavReady);
+  useIntegrationsAutoSync(state, dispatch);
   useAppliedTextSize(state.storage.settings);
   useAppliedTheme(state.storage.settings);
 

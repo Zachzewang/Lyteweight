@@ -35,6 +35,10 @@ when building.
 
 The native iOS app builds on a Mac with Xcode and installs with a free Apple ID. Step-by-step: [ios/BUILD.md](ios/BUILD.md).
 
+## WHOOP and Withings
+
+Me → Connected Devices syncs WHOOP recovery, sleep and strain and Withings body measurements through Cloudflare Pages Functions in `functions/integrations/`. One-time setup: [cloudflare/SETUP.md](cloudflare/SETUP.md).
+
 ## Hosting (Cloudflare Pages)
 
 Connect this repo in Cloudflare Pages with:

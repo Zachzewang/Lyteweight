@@ -87,6 +87,12 @@ function ScreenSettingsInner(props: IProps): JSX.Element {
         value="Attempts, DOTS, e1RM"
         onClick={() => props.dispatch(Thunk_pushScreen("meetPrep"))}
       />
+      <MenuItem
+        shouldShowRightArrow={true}
+        name="Connected Devices"
+        value="WHOOP, Withings"
+        onClick={() => props.dispatch(Thunk_pushScreen("integrations"))}
+      />
       <GroupHeader name="Account" topPadding={true} />
       <MenuItem
         name="Account"

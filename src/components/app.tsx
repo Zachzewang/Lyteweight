@@ -28,6 +28,7 @@ import { IEnv, IState, updateState } from "../models/state";
 import { Notification } from "./notification";
 import { Toast } from "./toast";
 import { useOnloadModals } from "../navigation/useOnloadModals";
+import { useIntegrationsAutoSync } from "../navigation/useIntegrationsAutoSync";
 import {
   Subscriptions_cleanupOutdatedAppleReceipts,
   Subscriptions_cleanupOutdatedGooglePurchaseTokens,
@@ -151,6 +152,7 @@ export function AppView(props: IProps): JSX.Element | null {
   const [isNavReady, setIsNavReady] = useState(false);
 
   useOnloadModals(state, dispatch, isNavReady);
+  useIntegrationsAutoSync(state, dispatch);
 
   const showCorruptedState = state.errors.corruptedstorage != null;
   const prevShowCorruptedState = useRef(false);

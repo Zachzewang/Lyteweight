@@ -2025,6 +2025,125 @@ const _VMeetProfileMatches: IEquals<v.InferOutput<typeof _VMeetProfile>, IMeetPr
 void _VMeetProfileMatches;
 export const VMeetProfile: v.GenericSchema<IMeetProfile> = _VMeetProfile;
 
+export interface IWhoopDay {
+  date: string;
+  cycleId: number;
+  recoveryScore?: number;
+  hrvMs?: number;
+  restingHr?: number;
+  spo2?: number;
+  skinTempC?: number;
+  sleepPerformance?: number;
+  sleepEfficiency?: number;
+  sleepConsistency?: number;
+  respiratoryRate?: number;
+  sleepHours?: number;
+  inBedHours?: number;
+  lightHours?: number;
+  deepHours?: number;
+  remHours?: number;
+  awakeHours?: number;
+  sleepCycles?: number;
+  disturbances?: number;
+  sleepNeedHours?: number;
+  sleepDebtHours?: number;
+  strain?: number;
+  kilojoule?: number;
+  avgHr?: number;
+  maxHr?: number;
+}
+const _VWhoopDay = v.object({
+  date: v.string(),
+  cycleId: v.number(),
+  recoveryScore: v.optional(v.number()),
+  hrvMs: v.optional(v.number()),
+  restingHr: v.optional(v.number()),
+  spo2: v.optional(v.number()),
+  skinTempC: v.optional(v.number()),
+  sleepPerformance: v.optional(v.number()),
+  sleepEfficiency: v.optional(v.number()),
+  sleepConsistency: v.optional(v.number()),
+  respiratoryRate: v.optional(v.number()),
+  sleepHours: v.optional(v.number()),
+  inBedHours: v.optional(v.number()),
+  lightHours: v.optional(v.number()),
+  deepHours: v.optional(v.number()),
+  remHours: v.optional(v.number()),
+  awakeHours: v.optional(v.number()),
+  sleepCycles: v.optional(v.number()),
+  disturbances: v.optional(v.number()),
+  sleepNeedHours: v.optional(v.number()),
+  sleepDebtHours: v.optional(v.number()),
+  strain: v.optional(v.number()),
+  kilojoule: v.optional(v.number()),
+  avgHr: v.optional(v.number()),
+  maxHr: v.optional(v.number()),
+});
+const _VWhoopDayMatches: IEquals<v.InferOutput<typeof _VWhoopDay>, IWhoopDay> = true;
+void _VWhoopDayMatches;
+
+export interface IWhoopWorkout {
+  id: string;
+  start: number;
+  end: number;
+  sport?: string;
+  strain?: number;
+  avgHr?: number;
+  maxHr?: number;
+  kilojoule?: number;
+  distanceM?: number;
+  zoneMinutes?: number[];
+}
+const _VWhoopWorkout = v.object({
+  id: v.string(),
+  start: v.number(),
+  end: v.number(),
+  sport: v.optional(v.string()),
+  strain: v.optional(v.number()),
+  avgHr: v.optional(v.number()),
+  maxHr: v.optional(v.number()),
+  kilojoule: v.optional(v.number()),
+  distanceM: v.optional(v.number()),
+  zoneMinutes: v.optional(v.array(v.number())),
+});
+const _VWhoopWorkoutMatches: IEquals<v.InferOutput<typeof _VWhoopWorkout>, IWhoopWorkout> = true;
+void _VWhoopWorkoutMatches;
+
+export interface IBodyCompositionEntry {
+  id: number;
+  timestamp: number;
+  values: Record<string, number | undefined>;
+}
+const _VBodyCompositionEntry = v.object({
+  id: v.number(),
+  timestamp: v.number(),
+  values: v.record(v.string(), v.optional(v.number())),
+});
+const _VBodyCompositionEntryMatches: IEquals<
+  v.InferOutput<typeof _VBodyCompositionEntry>,
+  IBodyCompositionEntry
+> = true;
+void _VBodyCompositionEntryMatches;
+
+export interface IIntegrations {
+  syncKey?: string;
+  lastSyncTs?: number;
+  lastSyncError?: string;
+  whoopDays: IWhoopDay[];
+  whoopWorkouts: IWhoopWorkout[];
+  bodyComposition: IBodyCompositionEntry[];
+}
+const _VIntegrations = v.object({
+  syncKey: v.optional(v.string()),
+  lastSyncTs: v.optional(v.number()),
+  lastSyncError: v.optional(v.string()),
+  whoopDays: v.array(_VWhoopDay),
+  whoopWorkouts: v.array(_VWhoopWorkout),
+  bodyComposition: v.array(_VBodyCompositionEntry),
+});
+const _VIntegrationsMatches: IEquals<v.InferOutput<typeof _VIntegrations>, IIntegrations> = true;
+void _VIntegrationsMatches;
+
 interface IStorageRaw {
   history: IHistoryRecord[];
   deletedHistory?: number[];
@@ -2039,6 +2158,7 @@ interface IStorageRaw {
   signupRequests: number[];
   hearAboutUs?: IHearAboutUs;
   meetProfile?: IMeetProfile;
+  integrations?: IIntegrations;
   helps: string[];
   tempUserId: string;
   email?: string;
@@ -2072,6 +2192,7 @@ const _VStorage = v.object({
   signupRequests: v.array(v.number()),
   hearAboutUs: v.optional(_VHearAboutUs),
   meetProfile: v.optional(_VMeetProfile),
+  integrations: v.optional(_VIntegrations),
   helps: v.array(v.string()),
   tempUserId: v.string(),
   email: v.optional(v.string()),
