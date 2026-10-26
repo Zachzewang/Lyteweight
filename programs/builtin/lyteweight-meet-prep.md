@@ -2,7 +2,7 @@
 id: lyteweight-meet-prep
 name: "Lyteweight Meet Prep (17 weeks)"
 author: Lyteweight
-url: "https://github.com/Zachzewang/Lyteweight"
+url: "https://github.com/barely-ai/Lyteweight"
 shortDescription: "A 17-week raw powerlifting meet prep: hypertrophy, strength and peak blocks, top sets plus RPE-autoregulated back-off sets, 4 days a week with bench 3x/week."
 isMultiweek: true
 tags: []

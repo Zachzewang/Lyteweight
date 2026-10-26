@@ -24,7 +24,7 @@ An app signed with a free Apple ID stops opening after 7 days. Reinstall it with
    `echo 'export PATH="/opt/homebrew/opt/node@22/bin:$PATH"' >> ~/.zshrc`
 6. Check the versions. `node -v` should print v22, and `pod --version` should print a version number.
 7. Get the code:
-   `git clone https://github.com/Zachzewang/Lyteweight.git && cd Lyteweight`
+   `git clone https://github.com/barely-ai/Lyteweight.git && cd Lyteweight`
    If the repo is still private, git asks for a GitHub login. Use a personal access token as the password.
 8. Tell Xcode where Node is. Xcode doesn't read your shell PATH, so this file pins it:
    `echo "export NODE_BINARY=$(command -v node)" > ios/.xcode.env.local`
@@ -38,7 +38,7 @@ An app signed with a free Apple ID stops opening after 7 days. Reinstall it with
 2. In Xcode, go to Settings → Accounts, click +, and sign in with your Apple ID.
 3. In the left sidebar, click the blue Liftosaur project. Then select the Liftosaur target → Signing & Capabilities.
 4. Tick "Automatically manage signing". Set Team to your name with "(Personal Team)".
-5. If Xcode says the bundle identifier is not available, change `com.zachzewang.lyteweight` to anything unique, for example `com.zachzewang.lyteweight2`.
+5. If Xcode says the bundle identifier is not available, change `com.barelyai.lyteweight` to anything unique, for example `com.barelyai.lyteweight2`.
 6. Go to Product → Scheme → Edit Scheme → Run → Info, and set Build Configuration to Release. A Release build packs the app's code inside the app, so it runs without the Mac.
 7. Plug in the iPhone and tap Trust on the phone. On iOS 16 or later, turn on Settings → Privacy & Security → Developer Mode, and let the phone restart.
 8. In Xcode's top bar, pick your iPhone as the run destination. Press ⌘R. The first build takes 15-30 minutes on an M2 Air.

@@ -3,7 +3,7 @@
 declare let __LOCAL_ONLY__: boolean | undefined;
 
 export const Lyteweight_appName = "Lyteweight";
-export const Lyteweight_sourceCodeUrl = "https://github.com/Zachzewang/Lyteweight";
+export const Lyteweight_sourceCodeUrl = "https://github.com/barely-ai/Lyteweight";
 export const Lyteweight_upstreamUrl = "https://github.com/astashov/liftosaur";
 
 /**
