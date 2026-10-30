@@ -91,7 +91,7 @@ function Mascot({ size }: { size: number }): JSX.Element {
       source={{ uri: ImagePreloader_uri("/images/dino-scope.png") }}
       style={{ width: size, height: size }}
       resizeMode="contain"
-      accessibilityLabel="Liftosaur mascot with a telescope"
+      accessibilityLabel="Smiling magnifying glass"
     />
   );
 }
