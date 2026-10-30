@@ -42,7 +42,7 @@ export const workoutTourConfig: ITourConfig = {
     {
       id: "howItWorks",
       title: "How Lyteweight works",
-      dino: "dinocoach.svg",
+      dino: "dinocoach.png",
       content: () => (
         <>
           <Text className={`mb-2 ${paraCn}`}>

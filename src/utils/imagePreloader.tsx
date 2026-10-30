@@ -19,10 +19,10 @@ export function ImagePreloader_uri(path: string): string {
 
 export function ImagePreloader_clear(): void {}
 
-export const ImagePreloader_dynocoach: string = "/images/dinocoach.svg";
+export const ImagePreloader_dynocoach: string = "/images/dinocoach.png";
 
-export const ImagePreloader_dynoflex: string = "/images/dinoflex.svg";
+export const ImagePreloader_dynoflex: string = "/images/dinoflex.png";
 
-export const ImagePreloader_dynohappy: string = "/images/dinohappy.svg";
+export const ImagePreloader_dynohappy: string = "/images/dinohappy.png";
 
 export const ImagePreloader_images: Record<string, HTMLImageElement> = {};
