@@ -1,15 +1,17 @@
 {
   "images" : [
     {
+      "filename" : "dino.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "dino_silhouette_filled.pdf",
+      "filename" : "dino@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "dino@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

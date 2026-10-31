@@ -33,7 +33,6 @@ import { ObjectUtils_entries, ObjectUtils_keys } from "../utils/object";
 import { lg } from "../utils/posthog";
 import { IconWatch } from "./icons/iconWatch";
 import { IconLink } from "./icons/iconLink";
-import { IconDinoSunglasses } from "./icons/iconDinoSunglasses";
 import { ImagePreloader_uri, ImagePreloader_preload } from "../utils/imagePreloader";
 import { ISubscriptionInfoType, SubscriptionInfoImages_allPaths } from "./subscriptionInfoImages";
 import { InternalLink } from "../internalLink";
@@ -324,7 +323,11 @@ function SubscriptionHero(): JSX.Element {
         accessibilityLabel="Liftosaur Premium features"
       />
       <View className="absolute right-4 bottom-0">
-        <IconDinoSunglasses width={102} height={136} />
+        <Image
+          source={{ uri: ImagePreloader_uri("/images/liftercool.png") }}
+          style={{ width: 102, height: 136 }}
+          resizeMode="contain"
+        />
       </View>
     </View>
   );
